@@ -1,0 +1,7 @@
+FROM postgres:12
+
+# Копирование скриптов инициализации
+COPY ./init-scripts /docker-entrypoint-initdb.d/
+
+# Права на выполнение скриптов
+RUN chmod -R 755 /docker-entrypoint-initdb.d/

@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  init-db:
+    build:
+      context: .
+      dockerfile: Dockerfile-init-db
+    container_name: init-db-container
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: ['sh', '-c', 'until pg_isready -h db -p 5432; do sleep 2; done; echo "DB is ready";']
+    networks:
+      - app-network
+
+  db:
+    image: postgres:12
+    container_name: postgres-container
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    depends_on:
+      - init-db
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app-network
+
+  jupyter-app:
+    build:
+      context: .
+      dockerfile: Dockerfile-jupyter
+    container_name: jupyter-notebook-container
+    volumes:
+      - ./:/app
+      - notebook-data:/app/data
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_ENABLE_LAB=yes
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+volumes:
+  db-data:
+  notebook-data:
+
+networks:
+  app-network:
+    driver: bridge
