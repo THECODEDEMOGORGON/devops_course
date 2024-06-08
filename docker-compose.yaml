@@ -6,10 +6,8 @@ services:
       context: .
       dockerfile: Dockerfile-init-db
     container_name: init-db-container
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     command: ['sh', '-c', 'until pg_isready -h db -p 5432; do sleep 2; done; echo "DB is ready";']
     networks:
       - app-network
@@ -19,10 +17,8 @@ services:
     container_name: postgres-container
     volumes:
       - db-data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    env_file:
+      - .env
     ports:
       - "5432:5432"
     depends_on:
