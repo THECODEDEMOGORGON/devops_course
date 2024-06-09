@@ -18,7 +18,7 @@ data:
   NEXTCLOUD_UPDATE: "1"
   ALLOW_EMPTY_PASSWORD: "yes"
   NEXTCLOUD_TRUSTED_DOMAINS: "127.0.0.1"
-  NEXTCLOUD_ADMIN_USER: "any_name_you_want"
+  NEXTCLOUD_ADMIN_USER: "nextcloud_user"
   POSTGRES_HOST: postgres-service
 ---
 kind: Deployment
@@ -52,26 +52,28 @@ spec:
           containerPort: 80
           protocol: TCP
         envFrom:
-          - configMapRef:
-              name: nextcloud-configmap
-          - configMapRef:
-              name: postgres-configmap
-          - secretRef:
-              name: nextcloud-secret
-          - secretRef:
-              name: postgres-secret
+        - configMapRef:
+            name: nextcloud-configmap
+        - configMapRef:
+            name: postgres-configmap
+        - secretRef:
+            name: nextcloud-secret
+        - secretRef:
+            name: postgres-secret
         livenessProbe:
-          httpGet:
-            path: /status.php
-            port: 80
+          exec:
+            command:
+            - curl
+            - http://localhost/status.php
           initialDelaySeconds: 30
-          periodSeconds: 30
+          periodSeconds: 20
         readinessProbe:
-          httpGet:
-            path: /status.php
-            port: 80
+          exec:
+            command:
+            - curl
+            - http://localhost/status.php
           initialDelaySeconds: 30
-          periodSeconds: 30
+          periodSeconds: 20
         imagePullPolicy: IfNotPresent
       restartPolicy: Always
       dnsPolicy: ClusterFirst
