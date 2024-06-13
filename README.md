@@ -35,6 +35,7 @@
 ![Работа сервисов](images/image5.png)
 ![Работа сервисов](images/image6.png)
 ![Работа сервисов](images/image7.png)
+![Веб-страница для второго сервиса](images/image8.png)
 
 ---
 
